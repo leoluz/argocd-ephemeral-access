@@ -17,7 +17,6 @@ limitations under the License.
 package controller
 
 import (
-	"context"
 	"crypto/tls"
 	"fmt"
 
@@ -161,7 +160,7 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 	// +kubebuilder:scaffold:builder
 
-	metrics.Register(context.Background(), mgr.GetCache())
+	metrics.Register()
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		return fmt.Errorf("unable to set up health check: %w", err)

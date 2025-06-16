@@ -31,6 +31,7 @@ const (
 	metricsCollectionInterval          = 15 * time.Second
 	accessRequestResourcesMetricName   = "access_request_resources"
 	accessRequestStatusTotalMetricName = "access_request_status_total"
+	pluginOperationsTotalMetricName    = "plugin_operations_total"
 )
 
 var (
@@ -56,29 +57,18 @@ var (
 	// revoke_access or grant_access.
 	pluginOperationsTotal = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
-			Name: "plugin_operations_total",
+			Name: pluginOperationsTotalMetricName,
 			Help: "Total number of plugin operations by type and result",
 		},
 		[]string{"operation", "result"},
 	)
 )
 
-func newAccessRequestCollector(ctx context.Context, reader client.Reader) prometheus.Collector {
-	collector := &accessRequestCollector{
-		reader:     reader,
-		lock:       sync.RWMutex{},
-		latestInfo: []accessRequestInfo{},
-		metric:     accessRequestResources,
-	}
-	go collector.run(ctx)
-	return collector
-}
-
-func Register(ctx context.Context, reader client.Reader) {
+func Register() {
 	register.Do(func() {
 		metrics.Registry.MustRegister(accessRequestStatusTotal)
 		metrics.Registry.MustRegister(pluginOperationsTotal)
-		metrics.Registry.MustRegister(newAccessRequestCollector(ctx, reader))
+		metrics.Registry.MustRegister(accessRequestResources)
 	})
 }
 
